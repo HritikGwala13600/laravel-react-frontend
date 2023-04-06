@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams , Link } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
 
 export default function Edit() {
-  // const navigate = useNavigate();
-  // const {id} = useParams();
+  const navigate = useNavigate();
+  const {id} = useParams();
 
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [image, setImage] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
   const [validationError, setValidationError] = useState({})
 
   useEffect(() => {
@@ -19,48 +20,47 @@ export default function Edit() {
   }, [])
 
   const fetchProduct = async () => {
-    await axios.get(`http://localhost:8000/api/products/${id}`).then(({ data }) => {
-      const { title, description } = data.product
+    await axios.get(`http://localhost:8000/api/category/${id}`).then(({ data }) => {
+      const { title, description , image } = data.data
       setTitle(title)
       setDescription(description)
-    }).catch(({ response: { data } }) => {
-      Swal.fire({
-        text: data.message,
-        icon: "error"
-      })
+      setImage(image)
+      setImagePreview(image)
+    }).catch((error) => {
+        console.log(error);
     })
   }
-
+  // setImagePreview(image);
   const changeHandler = (event) => {
+    setImagePreview(URL.createObjectURL(event.target.files[0]));
     setImage(event.target.files[0]);
   };
 
-  const updateProduct = async (e) => {
+  const updateCategory = async (e) => {
     e.preventDefault();
 
     const formData = new FormData()
     formData.append('_method', 'PATCH');
     formData.append('title', title)
     formData.append('description', description)
-    if (image !== null) {
-      formData.append('image', image)
-    }
+    formData.append('image', image)
+    console.log(formData);
 
-    await axios.post(`http://localhost:8000/api/products/${id}`, formData).then(({ data }) => {
-      Swal.fire({
-        icon: "success",
-        text: data.message
-      })
-      navigate("/")
-    }).catch(({ response }) => {
-      if (response.status === 422) {
-        setValidationError(response.data.errors)
-      } else {
+    await axios.post(`http://localhost:8000/api/category/${id}`, formData).then(({ data }) => {
+      if(data.status == true){
         Swal.fire({
-          text: response.data.message,
-          icon: "error"
+          icon: "success",
+          text: data.message
+        })
+        navigate("/")
+      }else{
+        Swal.fire({
+          icon: "error",
+          text: data.message
         })
       }
+    }).catch(({ response }) => {
+        console.log(response);
     })
   }
 
@@ -90,7 +90,7 @@ export default function Edit() {
                     </div>
                   )
                 }
-                <Form onSubmit={updateProduct}>
+                <Form onSubmit={updateCategory}>
                   <Row>
                     <Col>
                       <Form.Group controlId="Name">
@@ -116,12 +116,14 @@ export default function Edit() {
                       <Form.Group controlId="Image" className="mb-3">
                         <Form.Label>Image</Form.Label>
                         <Form.Control type="file" onChange={changeHandler} />
+                        <img className='mt-4' width="250px" src={imagePreview} alt="No Image" />
                       </Form.Group>
                     </Col>
                   </Row>
-                  <Button variant="primary" className="mt-2" size="lg" block="block" type="submit">
+                  <Button variant="primary" className="mt-2" size="md" block="block" type="submit">
                     Update
                   </Button>
+                  <Link className="btn btn-dark mt-2 mx-2" size="md" block="block" to={"/"}> Back </Link>
                 </Form>
               </div>
             </div>

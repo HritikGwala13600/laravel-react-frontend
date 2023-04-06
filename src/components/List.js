@@ -79,7 +79,8 @@ export default function List() {
                                                 <td><img width="50px" src={value.image} alt="No Image" /></td>
                                                 <td>
                                                     <Button variant='danger' className='text-uppercase mx-2' onClick={()=>deleteCat(value.id)}>Delete</Button>
-                                                    <Button variant='success' className='text-uppercase'>View</Button>
+                                                    {/* <Button variant='success' className='text-uppercase'>edit</Button> */}
+                                                    <Link className='btn btn-success text-uppercase' to={`/edit/${value.id}`}>edit</Link>
                                                 </td>
                                             </tr>
                                         ))

@@ -6,6 +6,7 @@ import { BrowserRouter as Browser, Routes, Route, Link } from 'react-router-dom'
 
 import Create from './components/Create';
 import List from './components/List';
+import Edit from './components/Edit';
 function App() {
   return (
     // <Create />
@@ -15,6 +16,7 @@ function App() {
           <Browser>
             <Routes>
               <Route path="/create" element={<Create />} />
+              <Route path='/edit/:id' element={<Edit />} />
               <Route path='/' element={<List />} />
             </Routes>
           </Browser>
